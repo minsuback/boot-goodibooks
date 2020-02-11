@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.goodibooks.mapper.MemberMapper">
+
+	<insert id="insertMember" parameterType="com.goodibooks.vo.MemberVO">
+		insert into member ( id, passwd, name, phone, email, addr1, addr2, addr3 ) 
+		values ( #{ id }, #{ passwd }, #{ name }, #{ phone }, #{ email }, #{ addr1 }, #{ addr2 }, #{ addr3 } )
+	</insert>
+	
+	<insert id="insertMemberRole" parameterType="com.goodibooks.vo.MemberRoleVO">
+		insert into member_role values ( #{id}, #{roleName} )
+	</insert>
+	
+	<!-- 
+	멤버테이블 전체 조회로 변경 - ms
+	<select id="selectMemberByIdAndPasswd" parameterType="MemberVO" resultType="MemberVO">
+		select * from member where id = #{ id } and passwd = #{ passwd } and deleted = '0'
+	</select>
+	
+	id 중복체크
+	<select id="selectMemberById" parameterType="String" resultType="MemberVO">
+		select * from member where id = #{id}
+	</select>
+	
+	<update id="updateMember" parameterType="memberVO">
+		update member set passwd = #{passwd}, phone=#{ phone }, email=#{email}, addr1=#{addr1}, addr2=#{addr2}, addr3=#{addr3} where id=#{ id } 
+	</update>
+	
+	<update id="deleteMember" parameterType="MemberVO" >
+		update member 
+		set deleted = '1', deletedate = sysdate
+		where id=#{id}
+	</update> -->
+	
+	<resultMap type="com.goodibooks.vo.MemberVO" id="memberMap">
+		<id column="id" property="id"/>
+		<result column="passwd" property="passwd"/>
+		<result column="name" property="name"/>
+		<result column="phone" property="phone"/>
+		<result column="email" property="email"/>
+		<result column="addr1" property="addr1"/>
+		<result column="addr2" property="addr2"/>
+		<result column="addr3" property="addr3"/>
+		<collection property="roles" column="id" resultMap="roleMap"/>
+	</resultMap>
+	<resultMap type="com.goodibooks.vo.MemberRoleVO" id="roleMap">
+		<id column="id" property="id"/>
+		<result column="role_name" property="roleName"/>
+	</resultMap>
+	
+	<select id="selectMemberById" parameterType="String" resultMap="memberMap">
+		select m.id, m.passwd, m.name, m.phone, m.email, m.addr1, m.addr2, m.addr3, r.role_name
+		from member m
+		left outer join member_role r
+		on m.id = r.id
+		where m.id = #{id}
+	</select>
+
+
+</mapper>
